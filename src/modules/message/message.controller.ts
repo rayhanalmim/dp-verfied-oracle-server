@@ -2,21 +2,25 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 // Define the Message interface
 interface IMessage extends Document {
-  sender: mongoose.Schema.Types.ObjectId; // Reference to the sender's device
-  receiver: mongoose.Schema.Types.ObjectId; // Reference to the receiver's device
-  content: string; // Actual message content
-  encryptionType: string; // Encryption protocol used (e.g., AES, RSA)
-  isRead: boolean; // Whether the receiver has read the message
-  timestamp: Date; // Time the message was sent
+  sender: mongoose.Schema.Types.ObjectId;
+  receiver: mongoose.Schema.Types.ObjectId;
+  content: string;
+  encryptionType: 'AES' | 'NRZ-I' | 'Manchester';
+  isRead: boolean;
+  timestamp: Date;
 }
 
 // Define the schema for the Message model
-const MessageSchema: Schema = new Schema<IMessage>(
+const MessageSchema: Schema<IMessage> = new Schema<IMessage>(
   {
     sender: { type: Schema.Types.ObjectId, ref: 'Device', required: true },
     receiver: { type: Schema.Types.ObjectId, ref: 'Device', required: true },
     content: { type: String, required: true },
-    encryptionType: { type: String, default: 'AES' },
+    encryptionType: {
+      type: String,
+      enum: ['AES', 'NRZ-I', 'Manchester'],
+      default: 'AES',
+    },
     isRead: { type: Boolean, default: false },
     timestamp: { type: Date, default: Date.now },
   },
