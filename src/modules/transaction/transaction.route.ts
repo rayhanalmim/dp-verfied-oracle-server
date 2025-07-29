@@ -23,8 +23,6 @@ router.get('/:network/:txHash', transactionController.getTransactionByHash);
  */
 router.post('/ton/:address', transactionController.getTonTransactionByHash);
 
-
-
 /**
  * @route GET /api/transaction/wallet/:network/:address
  * @desc Get wallet transactions using Moralis API
@@ -35,5 +33,29 @@ router.post('/ton/:address', transactionController.getTonTransactionByHash);
  * @access Public
  */
 router.get('/wallet/:network/:address', transactionController.getWalletTransactions);
+
+/**
+ * @route POST /api/transaction/deposit/create
+ * @desc Create a new deposit request
+ * @body {userId, amount, network, status(optional)}
+ * @access Public
+ */
+router.post('/deposit/create', transactionController.createDepositRequest);
+
+/**
+ * @route POST /api/transaction/deposit/verify
+ * @desc Verify a deposit transaction
+ * @body {userId, transactionHash, network, amount}
+ * @access Public
+ */
+router.post('/deposit/verify', transactionController.verifyDepositTransaction);
+
+/**
+ * @route GET /api/transaction/deposit/:userId/pending
+ * @desc Get pending deposits for a user
+ * @param userId User ID
+ * @access Public
+ */
+router.get('/deposit/:userId/pending', transactionController.getUserPendingDeposits);
 
 export default router; 

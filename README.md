@@ -73,16 +73,51 @@ The server has been refactored to:
 4. Add transaction timestamp and block information
 5. Support value comparison between expected amount and actual transaction amount
 6. Add TON blockchain support
+7. Implement new deposit creation and verification flow with timestamp validation
+
+### New Deposit Flow
+
+The updated deposit verification system now works as follows:
+
+1. User creates a deposit request with specified amount and network
+2. System provides a deposit address for the selected network
+3. After making the deposit, user submits the transaction hash for verification
+4. System verifies that:
+   - The transaction occurred after the deposit request was made
+   - The amount matches the requested amount (within tolerance)
+   - The transaction is valid on the blockchain
+5. If verified successfully, the deposit is marked as confirmed
 
 ### Key Components
 
 - **blockchainService**: Simplified to provide network enums and utilities
 - **transactionVerificationService**: Enhanced transaction verification with detailed transaction info
 - **depositService**: Handles deposit creation and status management
+- **depositVerificationService**: New service for deposit validation and verification
 - **verifierOracleService**: Simulates oracle functionality
 - **transactionUtils**: New utility functions for processing blockchain transactions
 
 ## API Documentation
+
+### Deposit Creation and Verification
+- `POST /api/transaction/deposit/create` - Create a new deposit request
+  ```json
+  {
+    "userId": "user_id",
+    "amount": "100",
+    "network": 0
+  }
+  ```
+- `POST /api/transaction/deposit/verify` - Verify a deposit transaction
+  ```json
+  {
+    "userId": "user_id",
+    "transactionHash": "0x...",
+    "network": 0,
+    "amount": "100"
+  }
+  ```
+- `GET /api/transaction/deposit/:userId/pending` - Get pending deposits for a user
 
 ### Deposit Addresses
 - `GET /api/deposit/addresses` - Get addresses for all networks
