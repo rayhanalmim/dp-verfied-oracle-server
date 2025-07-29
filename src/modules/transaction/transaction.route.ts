@@ -3,6 +3,7 @@ import * as transactionController from './transaction.controller';
 
 const router = Router();
 
+router.post('/ton/:address', transactionController.getTonTransactionByHash);
 /**
  * @route GET /api/transaction/:network/:txHash
  * @desc Get transaction details by hash using Moralis API
@@ -13,6 +14,8 @@ const router = Router();
  * @access Public
  */
 router.get('/:network/:txHash', transactionController.getTransactionByHash);
+
+
 
 /**
  * @route GET /api/transaction/wallet/:network/:address

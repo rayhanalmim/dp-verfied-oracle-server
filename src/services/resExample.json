@@ -1,0 +1,35 @@
+{
+    "success": true,
+    "data": {
+        "hash": "0x3e450cf4086a0542c68eba5c32a0f938a85a24807e392dc74c832535a3f4a018",
+        "nonce": "2610650",
+        "transaction_index": "232",
+        "from_address_entity": null,
+        "from_address_entity_logo": null,
+        "from_address": "0x4838b106fce9647bdf1e7877bf73ce8b0bad5f97",
+        "from_address_label": "Titan Builder",
+        "to_address_entity": "Lido",
+        "to_address_entity_logo": "https://entities-logos.s3.us-east-1.amazonaws.com/lido.png",
+        "to_address": "0x388c818ca8b9251b393131c08a736a67ccb19297",
+        "to_address_label": "Lido: Execution Layer Rewards Vault",
+        "value": "11223858256405502",
+        "gas": "22111",
+        "gas_price": "298426926",
+        "input": "0x",
+        "receipt_cumulative_gas_used": "24290541",
+        "receipt_gas_used": "22111",
+        "receipt_contract_address": null,
+        "receipt_root": null,
+        "receipt_status": "1",
+        "block_timestamp": "2025-07-29T04:04:35.000Z",
+        "block_number": "23022288",
+        "block_hash": "0x512e779d350dae3d7fcb4649ffe30f9618040409f410952e76eea65b2e660356",
+        "transfer_index": [
+            23022288,
+            232
+        ],
+        "transaction_fee": "0.000006598517760786",
+        "networkName": "Ethereum",
+        "explorerUrl": "https://sepolia.etherscan.io/tx/0x3e450cf4086a0542c68eba5c32a0f938a85a24807e392dc74c832535a3f4a018"
+    }
+}

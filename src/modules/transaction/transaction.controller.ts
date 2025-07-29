@@ -11,7 +11,7 @@ import { Network } from '../../services/blockchainService';
 export const getTransactionByHash = catchAsync(async (req: Request, res: Response) => {
   const { network, txHash } = req.params;
   const networkId = parseInt(network);
-  
+
   // Validate network
   if (isNaN(networkId) || networkId < 0 || networkId > 2) {
     return res.status(400).json({
@@ -19,7 +19,7 @@ export const getTransactionByHash = catchAsync(async (req: Request, res: Respons
       message: 'Invalid network parameter. Valid values are: 0 (ETH), 1 (BSC), 2 (SOL)'
     });
   }
-  
+
   // Validate hash format
   if (!transactionVerificationService.isValidTransactionHash(txHash, networkId)) {
     return res.status(400).json({
@@ -27,16 +27,16 @@ export const getTransactionByHash = catchAsync(async (req: Request, res: Respons
       message: `Invalid transaction hash format for network ${networkId}`
     });
   }
-  
+
   try {
     // Check if we should use testnet or mainnet
     const isTestnet = req.query.testnet === 'true';
-    
+
     // Get chain ID for the network
     let chainId: string;
     try {
-      chainId = isTestnet 
-        ? moralisService.getTestnetChainId(networkId) 
+      chainId = isTestnet
+        ? moralisService.getTestnetChainId(networkId)
         : moralisService.getChainId(networkId);
     } catch (error) {
       return res.status(400).json({
@@ -44,17 +44,17 @@ export const getTransactionByHash = catchAsync(async (req: Request, res: Respons
         message: error instanceof Error ? error.message : 'Unsupported network'
       });
     }
-    
+
     // Get transaction details
     const verbose = req.query.verbose === 'true';
     let transactionDetails;
-    
+
     if (verbose) {
       transactionDetails = await moralisService.getTransactionVerbose(txHash, chainId);
     } else {
       transactionDetails = await moralisService.getTransactionByHash(txHash, chainId);
     }
-    
+
     if (!transactionDetails.success) {
       return res.status(404).json({
         success: false,
@@ -62,7 +62,7 @@ export const getTransactionByHash = catchAsync(async (req: Request, res: Respons
         error: transactionDetails.error
       });
     }
-    
+
     return res.status(200).json({
       success: true,
       data: {
@@ -88,7 +88,7 @@ export const getWalletTransactions = catchAsync(async (req: Request, res: Respon
   const { network, address } = req.params;
   const networkId = parseInt(network);
   const limit = parseInt(req.query.limit as string) || 10;
-  
+
   // Validate network
   if (isNaN(networkId) || networkId < 0 || networkId > 2) {
     return res.status(400).json({
@@ -96,7 +96,7 @@ export const getWalletTransactions = catchAsync(async (req: Request, res: Respon
       message: 'Invalid network parameter. Valid values are: 0 (ETH), 1 (BSC), 2 (SOL)'
     });
   }
-  
+
   // Validate address (simple validation)
   if (!address || !/^0x[0-9a-fA-F]{40}$/.test(address)) {
     return res.status(400).json({
@@ -104,16 +104,16 @@ export const getWalletTransactions = catchAsync(async (req: Request, res: Respon
       message: 'Invalid wallet address format'
     });
   }
-  
+
   try {
     // Check if we should use testnet or mainnet
     const isTestnet = req.query.testnet === 'true';
-    
+
     // Get chain ID for the network
     let chainId: string;
     try {
-      chainId = isTestnet 
-        ? moralisService.getTestnetChainId(networkId) 
+      chainId = isTestnet
+        ? moralisService.getTestnetChainId(networkId)
         : moralisService.getChainId(networkId);
     } catch (error) {
       return res.status(400).json({
@@ -121,10 +121,10 @@ export const getWalletTransactions = catchAsync(async (req: Request, res: Respon
         message: error instanceof Error ? error.message : 'Unsupported network'
       });
     }
-    
+
     // Get wallet transactions
     const transactions = await moralisService.getWalletTransactions(address, chainId, limit);
-    
+
     if (!transactions.success) {
       return res.status(404).json({
         success: false,
@@ -132,13 +132,13 @@ export const getWalletTransactions = catchAsync(async (req: Request, res: Respon
         error: transactions.error
       });
     }
-    
+
     // Enhance transaction data with explorer URLs
     const enhancedTransactions = transactions.data.result?.map((tx: any) => ({
       ...tx,
       explorerUrl: transactionVerificationService.getExplorerUrl(tx.hash, networkId)
     }));
-    
+
     return res.status(200).json({
       success: true,
       data: {
@@ -154,6 +154,54 @@ export const getWalletTransactions = catchAsync(async (req: Request, res: Respon
     return res.status(500).json({
       success: false,
       message: 'Error retrieving wallet transactions',
+      error: error.message
+    });
+  }
+});
+
+
+
+export const getTonTransactionByHash = catchAsync(async (req: Request, res: Response) => {
+  const { address } = req.params;
+  const { txHash } = req.body;
+
+  // Basic validation for TON address
+  if (!address) {
+    return res.status(400).json({
+      success: false,
+      message: 'TON address is required'
+    });
+  }
+
+  // Validate hash format
+  if (!txHash || txHash.length < 10) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid TON transaction hash format'
+    });
+  }
+
+  try {
+    // Get transaction details
+    const transactionDetails = await moralisService.getTransactionForTon(address, txHash);
+
+    if (!transactionDetails || !transactionDetails.success) {
+      return res.status(404).json({
+        success: false,
+        message: 'Failed to retrieve TON transaction details',
+        error: transactionDetails?.error || 'Transaction not found'
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: transactionDetails.data
+    });
+  } catch (error: any) {
+    logger.error(`Error getting TON transaction details: ${error.message}`, error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error retrieving TON transaction details',
       error: error.message
     });
   }
