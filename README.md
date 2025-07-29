@@ -105,7 +105,8 @@ The updated deposit verification system now works as follows:
   {
     "userId": "user_id",
     "amount": "100",
-    "network": 0
+    "network": 0,
+    "status": "pending" | "success" | "reject"
   }
   ```
 - `POST /api/transaction/deposit/verify` - Verify a deposit transaction
@@ -114,7 +115,8 @@ The updated deposit verification system now works as follows:
     "userId": "user_id",
     "transactionHash": "0x...",
     "network": 0,
-    "amount": "100"
+    "amount": "100",
+    "status": "pending" | "success" | "reject"
   }
   ```
 - `GET /api/transaction/deposit/:userId/pending` - Get pending deposits for a user
@@ -134,7 +136,8 @@ The updated deposit verification system now works as follows:
     "userId": "user_id",
     "transactionHash": "0x...",
     "amount": "100",
-    "network": 0
+    "network": 0,
+    "status": "pending" | "success" | "reject"
   }
   ```
 
