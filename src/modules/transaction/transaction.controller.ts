@@ -12,6 +12,8 @@ export const getTransactionByHash = catchAsync(async (req: Request, res: Respons
   const { network, txHash } = req.params;
   const networkId = parseInt(network);
 
+  console.log(networkId, txHash);
+
   // Validate network
   if (isNaN(networkId) || networkId < 0 || networkId > 2) {
     return res.status(400).json({

@@ -85,10 +85,15 @@ class MoralisService {
         return formattedResponse;
       }
 
+      console.log('chainId', chainId);
+      console.log('txHash', txHash);
+
       const response = await Moralis.EvmApi.transaction.getTransaction({
         chain: chainId,
         transactionHash: txHash
       });
+
+      console.log('response', response);
 
       if (!response || !response.raw) {
         return {
@@ -120,12 +125,43 @@ class MoralisService {
         }
       }
 
+      // Determine network name based on chainId
+      let networkName = "Unknown";
+      let explorerBaseUrl = "";
 
+      if (chainId === '0x1') {
+        networkName = "Ethereum";
+        explorerBaseUrl = "https://etherscan.io/tx/";
+      } else if (chainId === '0xaa36a7') { // Sepolia
+        networkName = "Ethereum";
+        explorerBaseUrl = "https://sepolia.etherscan.io/tx/";
+      } else if (chainId === '0x38') {
+        networkName = "Binance Smart Chain";
+        explorerBaseUrl = "https://bscscan.com/tx/";
+      } else if (chainId === '0x61') { // BSC Testnet
+        networkName = "Binance Smart Chain";
+        explorerBaseUrl = "https://testnet.bscscan.com/tx/";
+      }
+
+      // Format the data according to the specified format
       return {
         success: true,
         data: {
-          ...response.raw,
-          erc20Transfers
+          hash: response.raw.hash,
+          from_address: response.raw.from_address,
+          to_address: response.raw.to_address,
+          to_address_label: response.raw.to_address_label || null,
+          gas: response.raw.gas,
+          gas_price: response.raw.gas_price,
+          receipt_cumulative_gas_used: response.raw.receipt_cumulative_gas_used,
+          receipt_gas_used: response.raw.receipt_gas_used,
+          block_timestamp: response.raw.block_timestamp,
+          block_number: response.raw.block_number,
+          block_hash: response.raw.block_hash,
+          transaction_fee: this.calculateTransactionFee(response.raw.receipt_gas_used, response.raw.gas_price),
+          erc20Transfers,
+          networkName,
+          explorerUrl: explorerBaseUrl + txHash
         }
       };
     } catch (error) {
@@ -134,6 +170,28 @@ class MoralisService {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error'
       };
+    }
+  }
+
+  /**
+   * Calculate transaction fee from gas used and gas price
+   * @param gasUsed Gas used by the transaction
+   * @param gasPrice Gas price in wei
+   * @returns Transaction fee in ETH
+   */
+  private calculateTransactionFee(gasUsed: string, gasPrice: string): string {
+    try {
+      if (!gasUsed || !gasPrice) return "0";
+
+      const gasBN = ethers.BigNumber.from(gasUsed);
+      const gasPriceBN = ethers.BigNumber.from(gasPrice);
+      const feeBN = gasBN.mul(gasPriceBN);
+
+      // Convert wei to ETH (1 ETH = 10^18 wei)
+      return ethers.utils.formatEther(feeBN);
+    } catch (error) {
+      console.error('Error calculating transaction fee:', error);
+      return "0";
     }
   }
 
