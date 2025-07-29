@@ -1,6 +1,6 @@
 # Cryptocurrency Deposit Server
 
-This server handles cryptocurrency deposits across multiple blockchains (Ethereum, BSC, Solana) with a server-side verification flow.
+This server handles cryptocurrency deposits across multiple blockchains (Ethereum, BSC, Solana, TON) with a server-side verification flow.
 
 ## Overview
 
@@ -36,20 +36,24 @@ MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/your-database
 ETH_DEPOSIT_ADDRESS=0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 BSC_DEPOSIT_ADDRESS=0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 SOLANA_DEPOSIT_ADDRESS=G3QhuTXs97Arotoq9P2Xq531M3XSu3TQv7CTNyVJmVR2
+TON_DEPOSIT_ADDRESS=your-ton-deposit-address
 
 # Token addresses
 USDT_TOKEN_ADDRESS_ETH=0x7169D38820dfd117C3FA1f22a697dBA58d90BA06
 USDT_TOKEN_ADDRESS_BSC=0x7169D38820dfd117C3FA1f22a697dBA58d90BA06
 USDT_TOKEN_ADDRESS_SOL=0x7169D38820dfd117C3FA1f22a697dBA58d90BA06
+USDT_TOKEN_ADDRESS_TON=your-ton-token-address
 
 # RPC URLs
 ETH_RPC_URL=https://eth-sepolia.g.alchemy.com/v2/your-api-key
 BSC_RPC_URL=https://data-seed-prebsc-1-s1.binance.org:8545/
 SOL_RPC_URL=https://api.testnet.solana.com
+TON_RPC_URL=https://toncenter.com/api/v2/jsonRPC
 
 # API Keys
 ETHERSCAN_API_KEY=your-etherscan-api-key
 BSCSCAN_API_KEY=your-bscscan-api-key
+TON_API_KEY=your-ton-api-key
 
 # For testing/development
 SKIP_BLOCKCHAIN_VERIFICATION=false
@@ -68,6 +72,7 @@ The server has been refactored to:
 3. Use environment variables for deposit and token addresses
 4. Add transaction timestamp and block information
 5. Support value comparison between expected amount and actual transaction amount
+6. Add TON blockchain support
 
 ### Key Components
 
@@ -81,10 +86,11 @@ The server has been refactored to:
 
 ### Deposit Addresses
 - `GET /api/deposit/addresses` - Get addresses for all networks
-- `GET /api/deposit/address/:network` - Get address for specific network (0=ETH, 1=BSC, 2=SOL)
+- `GET /api/deposit/address/:network` - Get address for specific network (0=ETH, 1=BSC, 2=SOL, 3=TON)
 
 ### Transaction Verification
-- `GET /api/deposit/transaction/:network/:txHash` - Get detailed information about a transaction
+- `GET /api/transaction/:network/:txHash` - Get detailed information about a transaction
+- `POST /api/transaction/ton/:address` - Get TON transaction by hash for an address
 
 ### Deposit Transactions
 - `POST /api/deposit/verify` - Submit a deposit for verification
@@ -101,6 +107,9 @@ The server has been refactored to:
 - `GET /api/deposit/status/:transactionHash` - Check deposit status
 - `GET /api/deposit/user/:userId` - Get all deposits for a user
 - `GET /api/deposit/user/:userId?network=0` - Get deposits filtered by network
+
+### Wallet Transactions
+- `GET /api/transaction/wallet/:network/:address` - Get wallet transactions for a specified network and address
 
 ## Testing
 
